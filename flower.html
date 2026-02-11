@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Watch a Tulip Grow!</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: linear-gradient(to bottom, #87CEEB 0%, #b5e8ff 60%, #7ec850 60%, #5a9a3a 100%);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Comic Sans MS', 'Chalkboard SE', cursive;
+  }
+
+  h1 {
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    margin-top: 18px;
+    font-size: 2.2rem;
+    letter-spacing: 1px;
+  }
+
+  #message {
+    color: white;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+    font-size: 1.4rem;
+    margin-top: 8px;
+    min-height: 2em;
+    text-align: center;
+  }
+
+  svg {
+    position: fixed;
+    bottom: 0;
+    width: 420px;
+    height: 520px;
+  }
+
+  /* Sun */
+  .sun {
+    fill: #FFE066;
+    filter: drop-shadow(0 0 18px #FFE066);
+  }
+
+  /* Clouds */
+  .cloud { fill: white; opacity: 0.85; }
+
+  /* Ground */
+  .ground { fill: #5a9a3a; }
+  .dirt   { fill: #8B5E3C; }
+
+  /* Seed */
+  #seed {
+    fill: #8B5E3C;
+    stroke: #6b4226;
+    stroke-width: 1;
+  }
+
+  /* Roots */
+  #roots { stroke: #c49a6c; stroke-width: 2; fill: none; stroke-linecap: round; }
+
+  /* Stem */
+  #stem { stroke: #3a8a3a; stroke-width: 6; fill: none; stroke-linecap: round; }
+
+  /* Leaves */
+  .leaf { fill: #4aa84a; stroke: #3a8a3a; stroke-width: 1; }
+
+  /* Tulip petals */
+  .petal-red    { fill: #FF4466; }
+  .petal-pink   { fill: #FF7799; }
+  .petal-center { fill: #FFEE55; }
+
+  /* Butterfly */
+  .wing { fill: #FF99CC; stroke: #cc6699; stroke-width: 1; }
+  .wing2 { fill: #99CCFF; stroke: #6699cc; stroke-width: 1; }
+
+  /* Button */
+  #plantBtn {
+    position: fixed;
+    bottom: 36px;
+    padding: 16px 40px;
+    font-size: 1.5rem;
+    font-family: inherit;
+    background: #FF6B8A;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    transition: transform 0.15s;
+    z-index: 10;
+  }
+  #plantBtn:hover { transform: scale(1.08); }
+  #plantBtn.hidden { display: none; }
+</style>
+</head>
+<body>
+
+<h1>Watch a Tulip Grow!</h1>
+<div id="message"></div>
+
+<svg viewBox="0 0 420 520" id="scene">
+  <!-- Sky decorations -->
+  <circle class="sun" cx="360" cy="60" r="36" />
+
+  <g class="cloud" transform="translate(40, 40)">
+    <circle cx="0" cy="0" r="18"/><circle cx="20" cy="-8" r="22"/>
+    <circle cx="44" cy="0" r="18"/><circle cx="22" cy="6" r="16"/>
+  </g>
+  <g class="cloud" transform="translate(220, 25)">
+    <circle cx="0" cy="0" r="14"/><circle cx="16" cy="-6" r="18"/>
+    <circle cx="36" cy="0" r="14"/><circle cx="18" cy="5" r="12"/>
+  </g>
+
+  <!-- Ground & dirt patch -->
+  <rect class="ground" x="0" y="340" width="420" height="180"/>
+  <ellipse class="dirt" cx="210" cy="355" rx="70" ry="18"/>
+
+  <!-- Roots (hidden initially) -->
+  <g id="roots" opacity="0">
+    <path d="M210,380 Q200,410 185,430"/>
+    <path d="M210,380 Q215,415 210,435"/>
+    <path d="M210,380 Q222,410 235,425"/>
+  </g>
+
+  <!-- Seed -->
+  <ellipse id="seed" cx="210" cy="358" rx="8" ry="6" opacity="0"/>
+
+  <!-- Stem (grows upward) -->
+  <path id="stem" d="M210,355 L210,355" opacity="0"/>
+
+  <!-- Leaves -->
+  <g id="leaves" opacity="0">
+    <path class="leaf" d="M210,300 Q180,290 170,270 Q190,280 210,295" />
+    <path class="leaf" d="M210,280 Q240,268 252,248 Q232,260 210,275" />
+  </g>
+
+  <!-- Tulip flower -->
+  <g id="flower" opacity="0" transform="translate(210, 180)">
+    <!-- Back petals -->
+    <ellipse class="petal-pink" cx="-14" cy="-10" rx="14" ry="30" transform="rotate(-15, -14, -10)"/>
+    <ellipse class="petal-pink" cx="14"  cy="-10" rx="14" ry="30" transform="rotate(15, 14, -10)"/>
+    <!-- Front petals -->
+    <ellipse class="petal-red" cx="-8" cy="-12" rx="13" ry="32" transform="rotate(-5, -8, -12)"/>
+    <ellipse class="petal-red" cx="8"  cy="-12" rx="13" ry="32" transform="rotate(5, 8, -12)"/>
+    <!-- Center petal -->
+    <ellipse class="petal-red" cx="0" cy="-16" rx="10" ry="30"/>
+    <!-- Yellow center -->
+    <ellipse class="petal-center" cx="0" cy="4" rx="7" ry="5"/>
+  </g>
+
+  <!-- Butterfly (appears at end) -->
+  <g id="butterfly" opacity="0" transform="translate(260, 160)">
+    <ellipse class="wing"  cx="-10" cy="0" rx="12" ry="8"/>
+    <ellipse class="wing2" cx="10"  cy="0" rx="12" ry="8"/>
+    <ellipse cx="0" cy="0" rx="2" ry="6" fill="#663366"/>
+  </g>
+</svg>
+
+<button id="plantBtn" onclick="startGrowing()">Plant a Seed!</button>
+
+<script>
+const msg = document.getElementById('message');
+const btn = document.getElementById('plantBtn');
+let running = false;
+
+// Helper: animate a numeric attribute over time
+function animateAttr(el, attr, from, to, duration) {
+  return new Promise(resolve => {
+    const start = performance.now();
+    function tick(now) {
+      const t = Math.min((now - start) / duration, 1);
+      const ease = t < 0.5 ? 2*t*t : -1+(4-2*t)*t; // ease in-out
+      const val = from + (to - from) * ease;
+      el.setAttribute(attr, val);
+      if (t < 1) requestAnimationFrame(tick); else resolve();
+    }
+    requestAnimationFrame(tick);
+  });
+}
+
+// Helper: animate opacity
+function fadeIn(el, duration) {
+  return animateAttr(el, 'opacity', 0, 1, duration);
+}
+
+// Helper: grow stem path from bottom to top
+function growStem(duration) {
+  const stem = document.getElementById('stem');
+  stem.setAttribute('opacity', 1);
+  const startY = 355, endY = 195;
+  return new Promise(resolve => {
+    const start = performance.now();
+    function tick(now) {
+      const t = Math.min((now - start) / duration, 1);
+      const ease = t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
+      const y = startY + (endY - startY) * ease;
+      stem.setAttribute('d', `M210,355 L210,${y}`);
+      if (t < 1) requestAnimationFrame(tick); else resolve();
+    }
+    requestAnimationFrame(tick);
+  });
+}
+
+// Helper: scale the flower from tiny to full
+function bloomFlower(duration) {
+  const flower = document.getElementById('flower');
+  flower.setAttribute('opacity', 1);
+  return new Promise(resolve => {
+    const start = performance.now();
+    function tick(now) {
+      const t = Math.min((now - start) / duration, 1);
+      const ease = t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
+      const s = 0.05 + 0.95 * ease;
+      flower.setAttribute('transform', `translate(210,195) scale(${s})`);
+      if (t < 1) requestAnimationFrame(tick); else resolve();
+    }
+    requestAnimationFrame(tick);
+  });
+}
+
+// Butterfly float animation
+function floatButterfly() {
+  const bf = document.getElementById('butterfly');
+  let angle = 0;
+  function tick() {
+    angle += 0.025;
+    const x = 260 + Math.sin(angle) * 50;
+    const y = 155 + Math.cos(angle * 1.4) * 25;
+    const wingFlap = 0.6 + 0.4 * Math.sin(angle * 8);
+    bf.setAttribute('transform', `translate(${x},${y}) scale(1, ${wingFlap})`);
+    requestAnimationFrame(tick);
+  }
+  tick();
+}
+
+function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function startGrowing() {
+  if (running) return;
+  running = true;
+  btn.classList.add('hidden');
+
+  // Reset
+  document.getElementById('seed').setAttribute('opacity', 0);
+  document.getElementById('roots').setAttribute('opacity', 0);
+  document.getElementById('stem').setAttribute('opacity', 0);
+  document.getElementById('leaves').setAttribute('opacity', 0);
+  document.getElementById('flower').setAttribute('opacity', 0);
+  document.getElementById('flower').setAttribute('transform', 'translate(210,195) scale(0.05)');
+  document.getElementById('butterfly').setAttribute('opacity', 0);
+
+  // Step 1: Plant the seed
+  msg.textContent = "First, we plant a tiny seed in the dirt...";
+  await wait(800);
+  await fadeIn(document.getElementById('seed'), 1500);
+  await wait(1200);
+
+  // Step 2: Roots grow
+  msg.textContent = "The seed sends roots down to drink water!";
+  await fadeIn(document.getElementById('roots'), 2500);
+  await wait(1500);
+
+  // Step 3: Stem grows up
+  msg.textContent = "A green stem pushes up toward the sunshine!";
+  await growStem(3500);
+  await wait(800);
+
+  // Step 4: Leaves appear
+  msg.textContent = "Look! Little leaves are opening up!";
+  await fadeIn(document.getElementById('leaves'), 2000);
+  await wait(1200);
+
+  // Step 5: Flower blooms
+  msg.textContent = "The flower is blooming! A beautiful tulip!";
+  await bloomFlower(3500);
+  await wait(1000);
+
+  // Step 6: Butterfly
+  msg.textContent = "A butterfly came to say hello!";
+  await fadeIn(document.getElementById('butterfly'), 1500);
+  floatButterfly();
+  await wait(2500);
+
+  msg.textContent = "You grew a flower! Click below to grow another!";
+  btn.textContent = "Grow Again!";
+  btn.classList.remove('hidden');
+  running = false;
+}
+</script>
+</body>
+</html>
